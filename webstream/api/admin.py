@@ -6,7 +6,14 @@ from django.contrib.auth.admin import UserAdmin
 class UserCreationForm(forms.ModelForm):
     class Meta:
         model = MyUser
-        fields = ('username', 'password')
+        fields = ( 'username', 
+                   'password',
+                   'first_name',
+                   'last_name',
+                   'profile_image',
+                   'followers',
+                   'following',
+                   'bio' )
 
     def save(self, commit=True):
         # Save the provided password in hashed format
@@ -17,19 +24,33 @@ class UserCreationForm(forms.ModelForm):
         return user
 
 class MyUserAdmin(UserAdmin):
-    # The forms to add and change user instances
+
     add_form = UserCreationForm
     list_display = ("username",)
     ordering = ("username",)
     list_filter = ("username", )
 
     fieldsets = (
-        (None, {'fields': ( 'username', 'password')}),
+        (None, {'fields': ( 'username',
+                            'password',
+                            'first_name',
+                            'last_name',
+                            'profile_image',
+                            'followers',
+                            'following',
+                            'bio')}),
         )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password')}
+            'fields': ( 'username',
+                        'password',
+                        'first_name',
+                        'last_name',
+                        'profile_image',
+                        'followers',
+                        'following',
+                        'bio' )}
             ),
         )
 

@@ -12,9 +12,9 @@ class MyUserManager(BaseUserManager):
         user = self.model(
             username=username
         )
-        user.is_staff=True
         user.is_active=True
-        user.is_superuser=True
+        user.is_superuser=False
+        user.is_staff=False
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -33,20 +33,25 @@ class MyUserManager(BaseUserManager):
 class MyUser(AbstractBaseUser):
     objects = MyUserManager()
     class Meta:
-        # managed = False
         db_table = 'user_entity'
 
     id = models.AutoField(primary_key=True, db_column='userId')
     username = models.CharField(db_column='username', unique=True, max_length=20)
-    password = models.CharField(db_column='userPassword', max_length=256)
+    password = models.CharField(db_column='password', max_length=256)
+    first_name = models.CharField(db_column='first_name', max_length=20, null=True, blank=True)
+    last_name = models.CharField(db_column='last_name', max_length=20, null=True, blank=True)
+    profile_image = models.ImageField(db_column='profile_image', upload_to='profile_images', null=True, blank=True)
+    followers = models.IntegerField(db_column='followers', validators=[MinValueValidator(0)], null=True, blank=True)
+    following = models.IntegerField(db_column='following', validators=[MinValueValidator(0)], null=True, blank=True)
+    bio = models.TextField(db_column='bio', max_length=256, null=True, blank=True)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=True)
-    is_superuser = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
 
     def __str__(self):
-        return str(self.id) + " (%s)" % str(self.username)
+        return str(self.username)
 
     def has_perm(self, perm, obj=None):
         return True

@@ -3,42 +3,28 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from .models import MyUser, WatchList, Video, Comment, Topic
 
-# class UserSerializer(ModelSerializer):
-
-#     class Meta:
-#         model = User
-#         fields = ('username',
-#                  'password',
-#                  'first_name',
-#                  'last_name',
-#                  'profile_image',
-#                  'followers',
-#                  'following',
-#                  'bio')
-
-#     def create(self, validated_data):
-#         user = User.objects.create_user(validated_data['username'], validated_data['password'])
-#         user.save()
-#         return user
 
 class MyUserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
-            required=True,
-            validators=[UniqueValidator(queryset=MyUser.objects.all())],
-            min_length=5,
-            max_length=20
-            ),
-    password = serializers.CharField(
-            required=True,
-            max_length=256
-            )
 
     class Meta:
         model = MyUser
-        fields = ('username', 'password')
+        fields = ('username',
+                  'password',
+                  'first_name',
+                  'last_name',
+                  'profile_image',
+                  'followers',
+                  'following',
+                  'bio')
 
     def create(self, validated_data):
         user = MyUser.objects.create_user(validated_data['username'], validated_data['password'])
+        user.first_name = validated_data['first_name']
+        user.last_name = validated_data['last_name']
+        user.profile_image = validated_data['profile_image']
+        user.followers = validated_data['followers']
+        user.following = validated_data['following']
+        user.bio = validated_data['bio']
         user.save()
         return user
 

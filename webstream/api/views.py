@@ -21,27 +21,19 @@ from .models import Video
 from .serializers import CommentSerializer
 from .models import Comment
 
-# class UserListCreateApiView(generics.ListCreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
+class MyUserListCreateApiView(generics.ListCreateAPIView):
+    queryset = MyUser.objects.all()
+    serializer_class = MyUserSerializer
 
-class MyUserCreate(APIView):
 
-    def post(self, request, format='json'):
-        serializer = MyUserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
-# class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = MyUserSerializer
+    lookup_field = 'username'
 
-#     serializer_class = UserSerializer
-#     lookup_field = 'username'
-
-#     def get_queryset(self):
-#         self.username = get_object_or_404(User, username=self.kwargs['username'])
-#         return User.objects.filter(username=self.username)
+    def get_queryset(self):
+        self.username = get_object_or_404(MyUser, username=self.kwargs['username'])
+        return MyUser.objects.filter(username=self.username)
 
 
 class WatchListListCreateApiView(generics.ListCreateAPIView):
