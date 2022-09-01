@@ -1,29 +1,54 @@
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
-from .models import User, WatchList, Video, Comment, Topic
-from django.contrib.auth.hashers import make_password
+from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+from .models import MyUser, WatchList, Video, Comment, Topic
 
-class UserSerializer(ModelSerializer):
-    
+# class UserSerializer(ModelSerializer):
+
+#     class Meta:
+#         model = User
+#         fields = ('username',
+#                  'password',
+#                  'first_name',
+#                  'last_name',
+#                  'profile_image',
+#                  'followers',
+#                  'following',
+#                  'bio')
+
+#     def create(self, validated_data):
+#         user = User.objects.create_user(validated_data['username'], validated_data['password'])
+#         user.save()
+#         return user
+
+class MyUserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+            required=True,
+            validators=[UniqueValidator(queryset=MyUser.objects.all())],
+            min_length=5,
+            max_length=20
+            ),
+    password = serializers.CharField(
+            required=True,
+            max_length=256
+            )
+
     class Meta:
-        model = User
-        fields = [
-            'username',
-            'password',
-            'first_name',
-            'last_name',
-            'email',
-            'profile_image',
-            'followers',
-            'following',
-            'bio'
-        ]
+        model = MyUser
+        fields = ('username', 'password')
+
+    def create(self, validated_data):
+        user = MyUser.objects.create_user(validated_data['username'], validated_data['password'])
+        user.save()
+        return user
+
 
 
 class WatchListSerializer(ModelSerializer):
 
     user = SlugRelatedField(
         slug_field='username',
-        queryset=User.objects.all()
+        queryset=MyUser.objects.all()
     )
 
     class Meta:
