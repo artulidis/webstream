@@ -2,6 +2,8 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -24,12 +26,23 @@ from .models import Comment
 class MyUserListCreateApiView(generics.ListCreateAPIView):
     queryset = MyUser.objects.all()
     serializer_class = MyUserSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, format=None):
+        print(request.data)
+        serializer = MyUserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-
+class MyUserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MyUserSerializer
+    # permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
     lookup_field = 'username'
+
 
     def get_queryset(self):
         self.username = get_object_or_404(MyUser, username=self.kwargs['username'])
@@ -57,6 +70,15 @@ class VideoListCreateApiView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         return super().perform_create(serializer)
+
+
+class VideoListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = VideoSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'user'
+
+    def get_queryset(self):
+        return Video.objects.filter(user=self.kwargs['user'])
 
 
 class CommentListCreateApiView(generics.ListCreateAPIView):

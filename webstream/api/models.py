@@ -7,6 +7,10 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
 
+def upload_to(instance, filename):
+    return f'profile_images/{filename}'.format(filename=filename)
+
+
 class MyUserManager(BaseUserManager):
     def create_user(self, username, password, **extra_fields):
         user = self.model(
@@ -38,9 +42,9 @@ class MyUser(AbstractBaseUser):
     id = models.AutoField(primary_key=True, db_column='userId')
     username = models.CharField(db_column='username', unique=True, max_length=20)
     password = models.CharField(db_column='password', max_length=256)
-    first_name = models.CharField(db_column='first_name', max_length=20, null=True, blank=True)
-    last_name = models.CharField(db_column='last_name', max_length=20, null=True, blank=True)
-    profile_image = models.ImageField(db_column='profile_image', upload_to='profile_images', null=True, blank=True)
+    email = models.EmailField(max_length=256, blank=True, null=True)
+    full_name = models.CharField(db_column='full_name', max_length=40, null=True, blank=True)
+    profile_image = models.ImageField(db_column='profile_image', upload_to=upload_to, null=True, blank=True)
     followers = models.IntegerField(db_column='followers', validators=[MinValueValidator(0)], null=True, blank=True)
     following = models.IntegerField(db_column='following', validators=[MinValueValidator(0)], null=True, blank=True)
     bio = models.TextField(db_column='bio', max_length=256, null=True, blank=True)
@@ -83,12 +87,12 @@ class Video(models.Model):
     likes = models.IntegerField(validators=[MinValueValidator(0)], default=0, blank=False, null=True)
     description = models.TextField(max_length=1000, blank=True, null=True) 
     views = models.IntegerField(validators=[MinValueValidator(0)], default=0, blank=False, null=True)
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, null=True, blank=True)
+    topics = models.ManyToManyField(Topic, null=True, blank=True)
     thumbnail = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
-    created = models.DateField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} : {self.created}"
+        return f"{self.name} : {self.user}"
 
 
 

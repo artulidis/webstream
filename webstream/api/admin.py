@@ -8,8 +8,8 @@ class UserCreationForm(forms.ModelForm):
         model = MyUser
         fields = ( 'username', 
                    'password',
-                   'first_name',
-                   'last_name',
+                   'email',
+                   'full_name',
                    'profile_image',
                    'followers',
                    'following',
@@ -26,15 +26,15 @@ class UserCreationForm(forms.ModelForm):
 class MyUserAdmin(UserAdmin):
 
     add_form = UserCreationForm
-    list_display = ("username",)
+    list_display = ("username", "id")
     ordering = ("username",)
     list_filter = ("username", )
 
     fieldsets = (
         (None, {'fields': ( 'username',
                             'password',
-                            'first_name',
-                            'last_name',
+                            'email',
+                            'full_name',
                             'profile_image',
                             'followers',
                             'following',
@@ -45,8 +45,8 @@ class MyUserAdmin(UserAdmin):
             'classes': ('wide',),
             'fields': ( 'username',
                         'password',
-                        'first_name',
-                        'last_name',
+                        'email',
+                        'full_name',
                         'profile_image',
                         'followers',
                         'following',

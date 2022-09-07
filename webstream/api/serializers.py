@@ -10,8 +10,8 @@ class MyUserSerializer(serializers.ModelSerializer):
         model = MyUser
         fields = ('username',
                   'password',
-                  'first_name',
-                  'last_name',
+                  'email',
+                  'full_name',
                   'profile_image',
                   'followers',
                   'following',
@@ -19,9 +19,27 @@ class MyUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = MyUser.objects.create_user(validated_data['username'], validated_data['password'])
-        user.first_name = validated_data['first_name']
-        user.last_name = validated_data['last_name']
+        user.email = validated_data['email']
+        user.full_name = validated_data['full_name']
         user.profile_image = validated_data['profile_image']
+        user.followers = validated_data['followers']
+        user.following = validated_data['following']
+        user.bio = validated_data['bio']
+        user.save()
+        return user
+
+    def update(self, user, validated_data):
+        if validated_data['password'] is not None:
+            user.set_password(validated_data['password'])
+        user.username = validated_data['username']
+        user.email = validated_data['email']
+        user.full_name = validated_data['full_name']
+        if validated_data['profile_image'] is not None:
+            user.profile_image = validated_data['profile_image']
+        else:
+            user.profile_image = user.profile_image
+
+
         user.followers = validated_data['followers']
         user.following = validated_data['following']
         user.bio = validated_data['bio']
@@ -51,9 +69,8 @@ class TopicSerializer(ModelSerializer):
 
 class VideoSerializer(ModelSerializer):
 
-    topic = SlugRelatedField(slug_field='name', queryset=Topic.objects.all())
-
-    watchlists = WatchListSerializer(many=True, read_only=True)
+    topics = TopicSerializer(read_only=True, many=True)
+    user = SlugRelatedField(slug_field='username', queryset=MyUser.objects.all())
 
     class Meta:
         model = Video
