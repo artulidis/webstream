@@ -81,7 +81,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api'
+    'api',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -115,6 +116,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'webstream.wsgi.application'
+ASGI_APPLICATION = "webstream.asgi.application"
 
 
 # Database
@@ -129,6 +131,15 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '5432',
     }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
 }
 
 

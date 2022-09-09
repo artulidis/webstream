@@ -39,7 +39,7 @@ class MyUserListCreateApiView(generics.ListCreateAPIView):
 
 class MyUserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MyUserSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
     lookup_field = 'username'
 
