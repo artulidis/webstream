@@ -8,7 +8,9 @@ class MyUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MyUser
-        fields = ('username',
+        fields = (
+                  'id',
+                  'username',
                   'password',
                   'email',
                   'full_name',
@@ -80,7 +82,7 @@ class VideoSerializer(ModelSerializer):
     
 class CommentSerializer(ModelSerializer):
 
-    video = SlugRelatedField(slug_field='name', queryset=Video.objects.all())
+    user = SlugRelatedField(slug_field='username', queryset=MyUser.objects.all())
 
     class Meta:
         model = Comment

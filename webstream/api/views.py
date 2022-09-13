@@ -29,7 +29,6 @@ class MyUserListCreateApiView(generics.ListCreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None):
-        print(request.data)
         serializer = MyUserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -39,7 +38,7 @@ class MyUserListCreateApiView(generics.ListCreateAPIView):
 
 class MyUserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MyUserSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
     lookup_field = 'username'
 
@@ -74,11 +73,18 @@ class VideoListCreateApiView(generics.ListCreateAPIView):
 
 class VideoListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = VideoSerializer
-    permission_classes = [IsAuthenticated]
     lookup_field = 'user'
 
     def get_queryset(self):
         return Video.objects.filter(user=self.kwargs['user'])
+
+
+class VideoRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = VideoSerializer
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return Video.objects.filter(id=self.kwargs['id'])
 
 
 class CommentListCreateApiView(generics.ListCreateAPIView):
@@ -87,6 +93,14 @@ class CommentListCreateApiView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         return super().perform_create(serializer)
+
+
+class VideoCommentsListCreateApiView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    lookup_field = 'video_id'
+
+    def get_queryset(self):
+        return Comment.objects.filter(video=self.kwargs['video_id'])
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):

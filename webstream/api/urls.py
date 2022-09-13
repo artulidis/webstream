@@ -15,8 +15,10 @@ urlpatterns = [
 
     path('videos/', views.VideoListCreateApiView.as_view(), name='videos'),
     path('videos/<int:user>', views.VideoListCreateAPIView.as_view(), name='user_videos'),
+    path('video/<int:id>', views.VideoRetrieveUpdateDestroyAPIView.as_view(), name='video'),
 
     path('comments/', views.CommentListCreateApiView.as_view(), name='comments'),
+    path('comments/<int:video_id>', views.VideoCommentsListCreateApiView.as_view(), name='video_comments'),
 
     path('token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh')

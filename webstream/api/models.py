@@ -98,8 +98,9 @@ class Video(models.Model):
 
 class Comment(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, null=True, blank=True)
     body = models.TextField(max_length=1000, blank=True, null=True)
-    created = models.DateField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.body}"   
