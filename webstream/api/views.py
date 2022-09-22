@@ -8,8 +8,11 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .serializers import MyUserSerializer
+from .serializers import MyUserSerializer, MyUserProfileImageSerializer, MyUserFollowSerializer
 from .models import MyUser
+
+from .serializers import UserFollowingCountSerializer
+from .models import UserFollowingCount
 
 from .serializers import WatchListSerializer
 from .models import WatchList
@@ -46,6 +49,37 @@ class MyUserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         self.username = get_object_or_404(MyUser, username=self.kwargs['username'])
         return MyUser.objects.filter(username=self.username)
+
+    def perform_update(self, serializer):
+        return super().perform_update(serializer)
+
+
+class UserFollowingCountRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserFollowingCountSerializer
+    lookup_field = 'owner'
+
+    def get_queryset(self):
+        self.list = UserFollowingCount.objects.get_or_create(owner=MyUser.objects.get(id=self.kwargs['owner']))
+        return UserFollowingCount.objects.filter(owner=self.list[0].owner.id)
+
+class MyUserFollowRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = MyUserFollowSerializer
+    lookup_field = 'username'
+
+    def update(self, request, *args, **kwargs):
+        print(request.data)
+        return super().update(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return MyUser.objects.filter(username=self.kwargs['username'])
+
+
+class MyUserProfileImageRetrieveAPIView(generics.RetrieveAPIView):
+    serializer_class = MyUserProfileImageSerializer
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return MyUser.objects.filter(id=self.kwargs['id'])
 
 
 class WatchListListCreateApiView(generics.ListCreateAPIView):

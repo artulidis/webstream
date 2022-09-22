@@ -19,7 +19,7 @@ application = ProtocolTypeRouter({
     "websocket": AllowedHostsOriginValidator(
         AuthMiddlewareStack(
             URLRouter([
-                path("websocket/<str:thread>", LiveChatConsumer.as_asgi())
+                path("videos/<str:username>/<int:id>", LiveChatConsumer.as_asgi()),
             ])
         )
     ),

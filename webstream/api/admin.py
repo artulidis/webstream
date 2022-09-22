@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import MyUser, WatchList, Video, Comment, Topic
+from .models import MyUser, UserFollowingCount, WatchList, Video, Comment, Topic
 from django.contrib.auth.admin import UserAdmin
 
 class UserCreationForm(forms.ModelForm):
@@ -12,7 +12,6 @@ class UserCreationForm(forms.ModelForm):
                    'full_name',
                    'profile_image',
                    'followers',
-                   'following',
                    'bio' )
 
     def save(self, commit=True):
@@ -37,7 +36,6 @@ class MyUserAdmin(UserAdmin):
                             'full_name',
                             'profile_image',
                             'followers',
-                            'following',
                             'bio')}),
         )
     add_fieldsets = (
@@ -49,7 +47,6 @@ class MyUserAdmin(UserAdmin):
                         'full_name',
                         'profile_image',
                         'followers',
-                        'following',
                         'bio' )}
             ),
         )
@@ -57,6 +54,7 @@ class MyUserAdmin(UserAdmin):
     filter_horizontal = ()
 
 admin.site.register(MyUser, MyUserAdmin)
+admin.site.register(UserFollowingCount)
 admin.site.register(WatchList)
 admin.site.register(Video)
 admin.site.register(Comment)

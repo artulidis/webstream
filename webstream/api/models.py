@@ -1,3 +1,6 @@
+from argparse import ONE_OR_MORE
+from doctest import BLANKLINE_MARKER
+from typing_extensions import Self
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -23,16 +26,16 @@ class MyUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, password, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self.create_user(username, password, **extra_fields)    
+    def create_superuser(self, username, password):
+        user = self.create_user(
+            username=username,
+            password=password,
+        )
+        user.is_active=True
+        user.is_superuser=True
+        user.is_staff=True
+        user.save()
+        return user
 
 class MyUser(AbstractBaseUser):
     objects = MyUserManager()
@@ -46,7 +49,6 @@ class MyUser(AbstractBaseUser):
     full_name = models.CharField(db_column='full_name', max_length=40, null=True, blank=True)
     profile_image = models.ImageField(db_column='profile_image', upload_to=upload_to, null=True, blank=True)
     followers = models.IntegerField(db_column='followers', validators=[MinValueValidator(0)], null=True, blank=True)
-    following = models.IntegerField(db_column='following', validators=[MinValueValidator(0)], null=True, blank=True)
     bio = models.TextField(db_column='bio', max_length=256, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -63,6 +65,10 @@ class MyUser(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
+class UserFollowingCount(models.Model):
+    owner = models.OneToOneField(MyUser, on_delete=models.CASCADE, related_name='owner')
+    users = models.ManyToManyField(MyUser, blank=True, null=True, related_name='user')
+
 
 
 class WatchList(models.Model):
@@ -74,7 +80,7 @@ class WatchList(models.Model):
 
 
 class Topic(models.Model):
-    name = models.CharField(max_length=100, blank=False, null=True)
+    name = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -84,7 +90,8 @@ class Topic(models.Model):
 class Video(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE, null=True, blank=True,)
     name = models.CharField(max_length=100, blank=False, null=True)
-    likes = models.IntegerField(validators=[MinValueValidator(0)], default=0, blank=False, null=True)
+    likes = models.ManyToManyField(MyUser, null=True, blank=True, related_name='users_liked')
+    dislikes = models.ManyToManyField(MyUser, null=True, blank=True, related_name='users_disliked')
     description = models.TextField(max_length=1000, blank=True, null=True) 
     views = models.IntegerField(validators=[MinValueValidator(0)], default=0, blank=False, null=True)
     topics = models.ManyToManyField(Topic, null=True, blank=True)
