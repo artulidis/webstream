@@ -18,6 +18,22 @@ class MyUserFollowSerializer(serializers.ModelSerializer):
                   'username',
                   'followers'
                   )
+class VideoThumbnailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = (
+                  'id',
+                  'thumbnail'
+                  )
+
+class VideoLikesDislikesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = (
+                  'id',
+                  'likes',
+                  'dislikes'
+                  )
 
 class MyUserSerializer(serializers.ModelSerializer):
 
@@ -33,7 +49,6 @@ class MyUserSerializer(serializers.ModelSerializer):
                   'followers',
                   'bio'
                   )
-
 
 
     def create(self, validated_data):
@@ -99,6 +114,14 @@ class TopicSerializer(ModelSerializer):
 class VideoSerializer(ModelSerializer):
 
     topics = TopicSerializer(read_only=True, many=True)
+    user = SlugRelatedField(slug_field='username', queryset=MyUser.objects.all())
+
+    class Meta:
+        model = Video
+        fields = '__all__'
+
+class VideoTopicSerializer(ModelSerializer):
+
     user = SlugRelatedField(slug_field='username', queryset=MyUser.objects.all())
 
     class Meta:

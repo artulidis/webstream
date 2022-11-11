@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
+import json
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -19,6 +20,10 @@ from .models import WatchList
 
 from .serializers import TopicSerializer
 from .models import Topic
+
+from .serializers import VideoTopicSerializer
+from .serializers import VideoThumbnailSerializer
+from .serializers import VideoLikesDislikesSerializer
 
 from .serializers import VideoSerializer
 from .models import Video
@@ -81,6 +86,13 @@ class MyUserProfileImageRetrieveAPIView(generics.RetrieveAPIView):
     def get_queryset(self):
         return MyUser.objects.filter(id=self.kwargs['id'])
 
+class MyUserUsernameProfileImageRetrieveAPIView(generics.RetrieveAPIView):
+    serializer_class = MyUserProfileImageSerializer
+    lookup_field = 'username'
+
+    def get_queryset(self):
+        return MyUser.objects.filter(username=self.kwargs['username'])
+
 
 class WatchListListCreateApiView(generics.ListCreateAPIView):
     queryset = WatchList.objects.all()
@@ -105,6 +117,40 @@ class VideoListCreateApiView(generics.ListCreateAPIView):
         return super().perform_create(serializer)
 
 
+class VideoTopicCreateApiView(generics.CreateAPIView):
+    queryset = Video.objects.all()
+    serializer_class = VideoTopicSerializer
+
+    def post(self, request, format=None):
+        serializer = VideoTopicSerializer(data=request.data)
+        print(request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def perform_create(self, serializer):
+        return super().perform_create(serializer)
+
+
+class VideoThumbnailRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = VideoThumbnailSerializer
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return Video.objects.filter(id=self.kwargs['id'])
+
+
+class VideoLikesDislikesRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = VideoLikesDislikesSerializer
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return Video.objects.filter(id=self.kwargs['id'])
+
+
+
+
 class VideoListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = VideoSerializer
     lookup_field = 'user'
@@ -119,6 +165,10 @@ class VideoRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Video.objects.filter(id=self.kwargs['id'])
+
+    def update(self, request, *args, **kwargs):
+        print(request.data)
+        return super().update(request, *args, **kwargs)
 
 
 class CommentListCreateApiView(generics.ListCreateAPIView):
